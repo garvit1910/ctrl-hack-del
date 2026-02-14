@@ -597,14 +597,17 @@ export default function HeroNeuron() {
       const cy = height / 2;
       const focalLength = 400;
 
-      // Camera flies forward — during warp, accelerates dramatically
+      // Camera flies forward along Z toward origin (0,0,0)
+      // cameraZ offsets every point's Z, pulling the scene toward the viewer
+      // so the nucleus at (0,0,0) stays perfectly centered on screen.
       const warpCameraBoost = warpFactor * 600;
       const cameraZ = currentZoom * 350 + warpCameraBoost;
 
-      // Slow rotation as user zooms in
-      const rotSpeed = lerp(0.15, 0.03, currentZoom);
+      // Kill rotation as zoom deepens so the camera locks onto center
+      const rotDampen = Math.max(0, 1 - currentZoom * 1.4);
+      const rotSpeed = 0.15 * rotDampen;
       const rotY = time * rotSpeed;
-      const rotXAngle = Math.sin(time * 0.1) * lerp(0.15, 0.03, currentZoom);
+      const rotXAngle = Math.sin(time * 0.1) * 0.15 * rotDampen;
 
       // Render warp-speed lines behind everything
       renderWarpLines(cx, cy, warpFactor, time);
@@ -625,10 +628,14 @@ export default function HeroNeuron() {
         const stemTime = time;
         const positions: { x: number; y: number }[] = [];
 
+        // Scale stems relative to viewport so they space evenly
+        const stemScale = Math.min(width, height) / 600;
+
         SYNAPTIC_STEMS.forEach((stem, idx) => {
-          const wobble = Math.sin(stemTime * 1.5 + stem.angle * 3) * 4;
-          const endX = cx + Math.cos(stem.angle) * (stem.length + wobble);
-          const endY = cy + Math.sin(stem.angle) * (stem.length + wobble);
+          const wobble = Math.sin(stemTime * 1.5 + stem.angle * 3) * 3;
+          const scaledLen = stem.length * stemScale;
+          const endX = cx + Math.cos(stem.angle) * (scaledLen + wobble);
+          const endY = cy + Math.sin(stem.angle) * (scaledLen + wobble);
 
           // Dendrite branch line
           const isHot = hoveredStem === idx || activeStem === idx;
