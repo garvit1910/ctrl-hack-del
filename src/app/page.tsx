@@ -181,15 +181,16 @@ export default function HomePage() {
                   Begin Screening
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                size="lg"
-                className="gap-2 text-base"
-                onClick={() => setLearnOpen(true)}
-              >
-                <BookOpen className="w-5 h-5" />
-                Learn More
-              </Button>
+              <Link href="/learn-more">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="gap-2 text-base"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  Learn More
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -247,7 +248,7 @@ export default function HomePage() {
           </p>
           <Link href="/detector">
             <Button size="lg" className="gap-2 text-base">
-              Start the Spiral Test
+              Open Detector
               <ArrowRight className="w-5 h-5" />
             </Button>
           </Link>

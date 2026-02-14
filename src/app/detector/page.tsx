@@ -11,6 +11,7 @@
 "use client";
 
 import React, { useRef, useState, useCallback } from "react";
+import Link from "next/link";
 import {
   Brain,
   Activity,
@@ -239,7 +240,7 @@ export default function DetectorPage() {
       {/* Header */}
       <header className="border-b border-zinc-900 bg-black/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="p-2 rounded-lg bg-cyan-500/10">
               <Brain className="w-5 h-5 text-cyan-400" />
             </div>
@@ -251,7 +252,7 @@ export default function DetectorPage() {
                 Motor Function Analysis
               </p>
             </div>
-          </a>
+          </Link>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -261,7 +262,7 @@ export default function DetectorPage() {
               <Info className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="sm" asChild>
-              <a href="/">Home</a>
+              <Link href="/">Home</Link>
             </Button>
           </div>
         </div>
