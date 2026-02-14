@@ -127,10 +127,12 @@ export default function HomePage() {
                   Begin Screening
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="gap-2 text-base">
-                <Microscope className="w-5 h-5" />
-                Learn More
-              </Button>
+              <Link href="/learn">
+                <Button variant="outline" size="lg" className="gap-2 text-base">
+                  <Microscope className="w-5 h-5" />
+                  Learn More
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -21,6 +21,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Info,
+  Upload,
+  Pencil,
 } from "lucide-react";
 import {
   Card,
@@ -42,6 +44,7 @@ import SpiralCanvas, {
   type SpiralAnalysis,
   type SpiralCanvasRef,
 } from "@/components/canvas/SpiralCanvas";
+import SpiralUpload from "@/components/canvas/SpiralUpload";
 
 /* ─── Risk Classification ─────────────────────────────────────────────── */
 
@@ -127,6 +130,8 @@ export default function DetectorPage() {
   const [analysis, setAnalysis] = useState<SpiralAnalysis | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState<"draw" | "upload">("draw");
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleAnalysisUpdate = useCallback((a: SpiralAnalysis) => {
     setAnalysis(a);
@@ -184,9 +189,9 @@ export default function DetectorPage() {
             Archimedes Spiral Test
           </h2>
           <p className="text-zinc-400 max-w-2xl">
-            Draw a spiral starting from the center dot, following the guide
-            pattern. Your drawing speed, consistency, and accuracy will be
-            analyzed in real-time for motor function indicators.
+            Draw a spiral on screen or upload an existing image. Your
+            drawing will be analyzed for motor function indicators — either
+            in real-time or via our ML pipeline.
           </p>
         </div>
 
@@ -197,40 +202,83 @@ export default function DetectorPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-cyan-400" />
-                    <CardTitle className="text-base">Drawing Canvas</CardTitle>
-                    {isDrawing && (
+                    {/* Tab Switcher */}
+                    <div className="flex items-center rounded-lg border border-zinc-800 p-0.5 bg-zinc-900/50">
+                      <button
+                        onClick={() => setActiveTab("draw")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                          activeTab === "draw"
+                            ? "bg-cyan-500/15 text-cyan-400"
+                            : "text-zinc-500 hover:text-zinc-300"
+                        }`}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        Draw
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("upload")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                          activeTab === "upload"
+                            ? "bg-cyan-500/15 text-cyan-400"
+                            : "text-zinc-500 hover:text-zinc-300"
+                        }`}
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        Upload
+                      </button>
+                    </div>
+                    {isDrawing && activeTab === "draw" && (
                       <span className="inline-flex items-center gap-1 text-xs bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">
                         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                         Recording
                       </span>
                     )}
+                    {isUploading && activeTab === "upload" && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                        Processing
+                      </span>
+                    )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleReset}
-                    className="gap-1.5"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    Reset
-                  </Button>
+                  {activeTab === "draw" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleReset}
+                      className="gap-1.5"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Reset
+                    </Button>
+                  )}
                 </div>
                 <CardDescription>
-                  Click and drag to draw. Stay as close to the guide spiral
-                  as possible.
+                  {activeTab === "draw"
+                    ? "Click and drag to draw. Stay as close to the guide spiral as possible."
+                    : "Upload a photo of a hand-drawn spiral for ML-powered analysis."}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center">
-                <SpiralCanvas
-                  ref={canvasRef}
-                  width={500}
-                  height={500}
-                  showGuide={true}
-                  onAnalysisUpdate={handleAnalysisUpdate}
-                  onDrawingStart={() => setIsDrawing(true)}
-                  onDrawingEnd={handleDrawingEnd}
-                />
+              <CardContent>
+                {activeTab === "draw" ? (
+                  <div className="flex justify-center">
+                    <SpiralCanvas
+                      ref={canvasRef}
+                      width={500}
+                      height={500}
+                      showGuide={true}
+                      onAnalysisUpdate={handleAnalysisUpdate}
+                      onDrawingStart={() => setIsDrawing(true)}
+                      onDrawingEnd={handleDrawingEnd}
+                    />
+                  </div>
+                ) : (
+                  <SpiralUpload
+                    onUploadStart={() => setIsUploading(true)}
+                    onUploadComplete={() => {
+                      setIsUploading(false);
+                    }}
+                  />
+                )}
               </CardContent>
             </Card>
           </div>

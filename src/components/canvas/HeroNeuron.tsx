@@ -195,7 +195,8 @@ export default function HeroNeuron() {
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
-      const delta = e.deltaY * -0.001;
+      // Faster scroll sensitivity for a responsive zoom feel
+      const delta = e.deltaY * -0.003;
       setZoom((prev) => {
         const next = clamp(prev + delta, 0, 1);
 
@@ -246,13 +247,18 @@ export default function HeroNeuron() {
       cy: number,
       rotAngleY: number,
       rotAngleX: number,
-      globalAlpha: number
+      globalAlpha: number,
+      cameraZ: number
     ) {
       // Rotate points
       let s = rotateY(node.start, rotAngleY);
       s = rotateX(s, rotAngleX);
       let e = rotateY(node.end, rotAngleY);
       e = rotateX(e, rotAngleX);
+
+      // Move scene toward camera (fly into the neuron)
+      s = { ...s, z: s.z + cameraZ };
+      e = { ...e, z: e.z + cameraZ };
 
       const p1 = project3D(s, focalLength, cx, cy);
       const p2 = project3D(e, focalLength, cx, cy);
@@ -292,7 +298,8 @@ export default function HeroNeuron() {
           cy,
           rotAngleY,
           rotAngleX,
-          globalAlpha
+          globalAlpha,
+          cameraZ
         )
       );
     }
@@ -306,11 +313,13 @@ export default function HeroNeuron() {
       cy: number,
       rotAngleY: number,
       rotAngleX: number,
-      zoomLevel: number
+      zoomLevel: number,
+      cameraZ: number
     ) {
       let nucleusPos: Vec3 = { x: 0, y: 0, z: 0 };
       nucleusPos = rotateY(nucleusPos, rotAngleY);
       nucleusPos = rotateX(nucleusPos, rotAngleX);
+      nucleusPos = { ...nucleusPos, z: nucleusPos.z + cameraZ };
 
       const projected = project3D(nucleusPos, focalLength, cx, cy);
       const baseRadius = 12 + zoomLevel * 30;
@@ -362,7 +371,8 @@ export default function HeroNeuron() {
       cx: number,
       cy: number,
       rotAngleY: number,
-      rotAngleX: number
+      rotAngleX: number,
+      cameraZ: number
     ) {
       particles.forEach((p) => {
         p.t = (p.t + p.speed) % 1;
@@ -375,6 +385,7 @@ export default function HeroNeuron() {
 
         let rPos = rotateY(pos, rotAngleY);
         rPos = rotateX(rPos, rotAngleX);
+        rPos = { ...rPos, z: rPos.z + cameraZ };
 
         const proj = project3D(rPos, focalLength, cx, cy);
         const alpha = 0.4 + 0.6 * Math.sin(time * 5 + p.branch.pulsePhase);
@@ -415,21 +426,27 @@ export default function HeroNeuron() {
       const cx = width / 2;
       const cy = height / 2;
       const baseFocal = 400;
-      const focalLength = baseFocal + currentZoom * 1200;
+      const focalLength = baseFocal;
 
-      const rotY = time * 0.15;
-      const rotXAngle = Math.sin(time * 0.1) * 0.15;
+      // Camera flies forward into the neuron as zoom increases
+      // Negative Z = camera moving toward origin (the nucleus)
+      const cameraZ = currentZoom * 350;
+
+      // Slow rotation as user zooms in (feels more controlled)
+      const rotSpeed = lerp(0.15, 0.03, currentZoom);
+      const rotY = time * rotSpeed;
+      const rotXAngle = Math.sin(time * 0.1) * lerp(0.15, 0.03, currentZoom);
 
       // Render neuron branches
       trees.forEach((tree) => {
-        renderBranch(tree, time, focalLength, cx, cy, rotY, rotXAngle, 0.9);
+        renderBranch(tree, time, focalLength, cx, cy, rotY, rotXAngle, 0.9, cameraZ);
       });
 
       // Render nucleus
-      renderNucleus(time, focalLength, cx, cy, rotY, rotXAngle, currentZoom);
+      renderNucleus(time, focalLength, cx, cy, rotY, rotXAngle, currentZoom, cameraZ);
 
       // Render synapse particles
-      renderParticles(time, focalLength, cx, cy, rotY, rotXAngle);
+      renderParticles(time, focalLength, cx, cy, rotY, rotXAngle, cameraZ);
 
       // Zoom indicator
       if (currentZoom > 0.01) {
