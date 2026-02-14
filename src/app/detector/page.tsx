@@ -1,9 +1,9 @@
 /**
  * NeuroDetect — Detector Dashboard
  *
- * The /detector route. Provides an Archimedes spiral drawing canvas
- * with real-time tremor analysis, clinical metrics display, and
- * the NeuroDetect dark aesthetic.
+ * Dual-test diagnostic dashboard featuring Archimedes Spiral and
+ * Wave Analysis tabs. Captures (x, y, t) coordinates and packages
+ * results as FormData with image blob + JSON coordinate array.
  *
  * @module app/detector/page
  */
@@ -22,7 +22,6 @@ import {
   CheckCircle2,
   Info,
   Upload,
-  Pencil,
 } from "lucide-react";
 import {
   Card,
@@ -40,10 +39,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import SpiralCanvas, {
-  type SpiralAnalysis,
-  type SpiralCanvasRef,
-} from "@/components/canvas/SpiralCanvas";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SpiralTest, { type SpiralTestRef, type SpiralAnalysis } from "@/components/tests/spiral-test";
+import WaveTest, { type WaveCanvasRef, type WaveAnalysis } from "@/components/tests/wave-test";
 import SpiralUpload from "@/components/canvas/SpiralUpload";
 
 /* ─── Risk Classification ─────────────────────────────────────────────── */
@@ -62,7 +60,7 @@ function classifyRisk(score: number): {
       color: "text-emerald-400",
       bgColor: "bg-emerald-500/10 border-emerald-500/20",
       description:
-        "Drawing patterns appear within normal range. Consistent speed and minimal radial deviation detected.",
+        "Drawing patterns appear within normal range. Consistent speed and minimal deviation detected.",
     };
   }
   if (score < 65) {
@@ -72,7 +70,7 @@ function classifyRisk(score: number): {
       color: "text-amber-400",
       bgColor: "bg-amber-500/10 border-amber-500/20",
       description:
-        "Some irregularity detected in velocity or trajectory. This could be environmental. Consider retesting in a controlled setting.",
+        "Some irregularity detected in velocity or trajectory. Consider retesting in a controlled setting.",
     };
   }
   return {
@@ -81,7 +79,7 @@ function classifyRisk(score: number): {
     color: "text-red-400",
     bgColor: "bg-red-500/10 border-red-500/20",
     description:
-      "Significant drawing irregularity detected. Please note: this is a screening tool, not a diagnosis. Consult a neurologist for clinical evaluation.",
+      "Significant drawing irregularity detected. This is a screening tool, not a diagnosis. Consult a neurologist.",
   };
 }
 
@@ -123,28 +121,97 @@ function MetricCard({
   );
 }
 
+/* ─── Unified Analysis Type ────────────────────────────────────────────── */
+
+interface UnifiedAnalysis {
+  tremorScore: number;
+  meanDeviation: number;
+  stdDeviation: number;
+  meanSpeed: number;
+  speedVariance: number;
+  drawingTime: number;
+  pointCount: number;
+  testType: "spiral" | "wave";
+}
+
 /* ─── Main Page ────────────────────────────────────────────────────────── */
 
 export default function DetectorPage() {
-  const canvasRef = useRef<SpiralCanvasRef>(null);
-  const [analysis, setAnalysis] = useState<SpiralAnalysis | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [showInfoDialog, setShowInfoDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState<"draw" | "upload">("draw");
-  const [isUploading, setIsUploading] = useState(false);
+  const spiralRef = useRef<SpiralTestRef>(null);
+  const waveRef = useRef<WaveCanvasRef>(null);
 
-  const handleAnalysisUpdate = useCallback((a: SpiralAnalysis) => {
-    setAnalysis(a);
+  const [analysis, setAnalysis] = useState<UnifiedAnalysis | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [activeTest, setActiveTest] = useState<string>("spiral");
+  const [showInfoDialog, setShowInfoDialog] = useState(false);
+
+  const handleSpiralUpdate = useCallback((a: SpiralAnalysis) => {
+    setAnalysis({
+      tremorScore: a.tremorScore,
+      meanDeviation: a.meanDeviation,
+      stdDeviation: a.stdDeviation,
+      meanSpeed: a.meanSpeed,
+      speedVariance: a.speedVariance,
+      drawingTime: a.drawingTime,
+      pointCount: a.pointCount,
+      testType: "spiral",
+    });
   }, []);
 
-  const handleDrawingEnd = useCallback(() => {
-    setIsDrawing(false);
+  const handleWaveUpdate = useCallback((a: WaveAnalysis) => {
+    setAnalysis({
+      tremorScore: a.tremorScore,
+      meanDeviation: a.meanDeviation,
+      stdDeviation: a.stdDeviation,
+      meanSpeed: a.meanSpeed,
+      speedVariance: a.speedVariance,
+      drawingTime: a.drawingTime,
+      pointCount: a.pointCount,
+      testType: "wave",
+    });
   }, []);
 
   const handleReset = useCallback(() => {
-    canvasRef.current?.clear();
+    if (activeTest === "spiral") {
+      spiralRef.current?.clear();
+    } else {
+      waveRef.current?.clear();
+    }
     setAnalysis(null);
-  }, []);
+  }, [activeTest]);
+
+  const handleExport = useCallback(async () => {
+    if (activeTest === "spiral" && spiralRef.current) {
+      const fd = await spiralRef.current.getFormData();
+      if (fd) {
+        console.log("[NeuroDetect] Spiral FormData ready:", {
+          image: fd.get("image"),
+          coordinates: fd.get("coordinates"),
+          test_type: fd.get("test_type"),
+        });
+        // TODO: POST to ML backend
+      }
+    } else if (activeTest === "wave" && waveRef.current) {
+      const blob = await waveRef.current.getImageBlob();
+      const points = waveRef.current.getPoints();
+      const waveAnalysis = waveRef.current.getAnalysis();
+      if (blob && points.length > 0) {
+        const fd = new FormData();
+        fd.append("image", blob, "wave.png");
+        fd.append("coordinates", JSON.stringify(points));
+        fd.append("test_type", "wave");
+        if (waveAnalysis) {
+          fd.append("analysis", JSON.stringify(waveAnalysis));
+        }
+        console.log("[NeuroDetect] Wave FormData ready:", {
+          image: fd.get("image"),
+          coordinates: fd.get("coordinates"),
+          test_type: fd.get("test_type"),
+        });
+        // TODO: POST to ML backend
+      }
+    }
+  }, [activeTest]);
 
   const risk = analysis ? classifyRisk(analysis.tremorScore) : null;
 
@@ -162,7 +229,7 @@ export default function DetectorPage() {
                 NeuroDetect
               </h1>
               <p className="text-xs text-zinc-500">
-                Spiral Tremor Analysis
+                Motor Function Analysis
               </p>
             </div>
           </div>
@@ -183,15 +250,13 @@ export default function DetectorPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Instructions */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold tracking-tight mb-2">
-            Archimedes Spiral Test
+            Diagnostic Tests
           </h2>
           <p className="text-zinc-400 max-w-2xl">
-            Draw a spiral on screen or upload an existing image. Your
-            drawing will be analyzed for motor function indicators — either
-            in real-time or via our ML pipeline.
+            Draw on the canvas to capture motor function data. Coordinates
+            are recorded at high resolution for analysis.
           </p>
         </div>
 
@@ -201,83 +266,97 @@ export default function DetectorPage() {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {/* Tab Switcher */}
-                    <div className="flex items-center rounded-lg border border-zinc-800 p-0.5 bg-zinc-900/50">
-                      <button
-                        onClick={() => setActiveTab("draw")}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                          activeTab === "draw"
-                            ? "bg-cyan-500/15 text-cyan-400"
-                            : "text-zinc-500 hover:text-zinc-300"
-                        }`}
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        Draw
-                      </button>
-                      <button
-                        onClick={() => setActiveTab("upload")}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                          activeTab === "upload"
-                            ? "bg-cyan-500/15 text-cyan-400"
-                            : "text-zinc-500 hover:text-zinc-300"
-                        }`}
-                      >
+                  <Tabs value={activeTest} onValueChange={(v) => { setActiveTest(v); setAnalysis(null); }}>
+                    <TabsList>
+                      <TabsTrigger value="spiral" className="gap-1.5">
+                        <Target className="w-3.5 h-3.5" />
+                        Archimedes Spiral
+                      </TabsTrigger>
+                      <TabsTrigger value="wave" className="gap-1.5">
+                        <Activity className="w-3.5 h-3.5" />
+                        Wave Analysis
+                      </TabsTrigger>
+                      <TabsTrigger value="upload" className="gap-1.5">
                         <Upload className="w-3.5 h-3.5" />
                         Upload
-                      </button>
-                    </div>
-                    {isDrawing && activeTab === "draw" && (
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+
+                  <div className="flex items-center gap-2">
+                    {isDrawing && (
                       <span className="inline-flex items-center gap-1 text-xs bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">
                         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                         Recording
                       </span>
                     )}
-                    {isUploading && activeTab === "upload" && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                        Processing
-                      </span>
+                    {activeTest !== "upload" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleReset}
+                        className="gap-1.5"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Reset
+                      </Button>
                     )}
                   </div>
-                  {activeTab === "draw" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleReset}
-                      className="gap-1.5"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Reset
-                    </Button>
-                  )}
                 </div>
                 <CardDescription>
-                  {activeTab === "draw"
-                    ? "Click and drag to draw. Stay as close to the guide spiral as possible."
+                  {activeTest === "spiral"
+                    ? "Trace the Archimedes spiral guide. Stay as close to the path as possible."
+                    : activeTest === "wave"
+                    ? "Follow the sinusoidal wave guide from left to right."
                     : "Upload a photo of a hand-drawn spiral for ML-powered analysis."}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {activeTab === "draw" ? (
+                {activeTest === "spiral" && (
                   <div className="flex justify-center">
-                    <SpiralCanvas
-                      ref={canvasRef}
+                    <SpiralTest
+                      ref={spiralRef}
                       width={500}
                       height={500}
                       showGuide={true}
-                      onAnalysisUpdate={handleAnalysisUpdate}
+                      onAnalysisUpdate={handleSpiralUpdate}
                       onDrawingStart={() => setIsDrawing(true)}
-                      onDrawingEnd={handleDrawingEnd}
+                      onDrawingEnd={() => setIsDrawing(false)}
                     />
                   </div>
-                ) : (
+                )}
+                {activeTest === "wave" && (
+                  <div className="flex justify-center">
+                    <WaveTest
+                      ref={waveRef}
+                      width={500}
+                      height={300}
+                      onAnalysisUpdate={handleWaveUpdate}
+                      onDrawingStart={() => setIsDrawing(true)}
+                      onDrawingEnd={() => setIsDrawing(false)}
+                    />
+                  </div>
+                )}
+                {activeTest === "upload" && (
                   <SpiralUpload
-                    onUploadStart={() => setIsUploading(true)}
-                    onUploadComplete={() => {
-                      setIsUploading(false);
-                    }}
+                    onUploadStart={() => {}}
+                    onUploadComplete={() => {}}
                   />
+                )}
+
+                {/* Export Button */}
+                {analysis && activeTest !== "upload" && (
+                  <div className="mt-4 flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={handleExport}
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      Export FormData
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -307,9 +386,7 @@ export default function DetectorPage() {
                         ) : (
                           <AlertTriangle className="w-5 h-5 text-red-400" />
                         )}
-                        <span
-                          className={`font-semibold text-sm ${risk.color}`}
-                        >
+                        <span className={`font-semibold text-sm ${risk.color}`}>
                           {risk.label}
                         </span>
                       </div>
@@ -327,12 +404,18 @@ export default function DetectorPage() {
                       </div>
                       <Progress value={analysis.tremorScore} />
                     </div>
+
+                    <div className="text-[10px] uppercase tracking-widest text-zinc-600 text-center">
+                      {analysis.testType === "spiral"
+                        ? "Archimedes Spiral Test"
+                        : "Wave Analysis Test"}
+                    </div>
                   </>
                 ) : (
                   <div className="text-center py-8 text-zinc-600">
                     <Activity className="w-8 h-8 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">
-                      Draw a spiral to begin analysis
+                      Draw to begin analysis
                     </p>
                   </div>
                 )}
@@ -352,7 +435,7 @@ export default function DetectorPage() {
                   <>
                     <MetricCard
                       icon={Target}
-                      label="Radial Deviation"
+                      label={analysis.testType === "spiral" ? "Radial Deviation" : "Wave Deviation"}
                       value={analysis.meanDeviation}
                       unit="px"
                       subtext={`σ = ${analysis.stdDeviation}`}
@@ -395,27 +478,27 @@ export default function DetectorPage() {
       <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>About the Spiral Test</DialogTitle>
+            <DialogTitle>About the Diagnostic Tests</DialogTitle>
             <DialogDescription className="space-y-3 pt-2">
               <p>
-                The Archimedes spiral drawing test is a validated clinical
-                tool used by neurologists to assess motor function. It
-                measures:
+                NeuroDetect provides two drawing-based motor function tests,
+                both validated in clinical literature:
               </p>
               <ul className="list-disc pl-5 space-y-1 text-zinc-300">
                 <li>
-                  <strong>Radial deviation</strong> — how far drawn points
-                  stray from the ideal spiral
+                  <strong>Archimedes Spiral</strong> — measures radial
+                  deviation and speed consistency while tracing a spiral
                 </li>
                 <li>
-                  <strong>Speed consistency</strong> — uniform drawing speed
-                  indicates healthy motor control
-                </li>
-                <li>
-                  <strong>Tremor indicators</strong> — high-frequency
-                  oscillations in the stroke path
+                  <strong>Wave Analysis</strong> — measures sinusoidal
+                  tracking accuracy and tremor frequency
                 </li>
               </ul>
+              <p>
+                Both tests capture (x, y, t) coordinates at high resolution.
+                Data is packaged as FormData with an image blob and JSON
+                coordinate array for ML pipeline integration.
+              </p>
               <p className="text-zinc-500 text-xs">
                 Reference: Pullman SL. Spiral analysis: a new technique for
                 measuring tremor with a digitizing tablet. Mov Disord. 1998.
