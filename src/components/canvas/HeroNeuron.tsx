@@ -600,6 +600,7 @@ export default function HeroNeuron() {
     /* ─── Animation Frame ──────────────────────────────────── */
 
     let currentZoom = 0;
+    let postGlowExpand = 1;   // eased expansion after glow
 
     function animate() {
       const time = (timeRef.current += 0.016);
@@ -614,6 +615,10 @@ export default function HeroNeuron() {
         warpProgressRef.current = lerp(warpProgressRef.current, 0, 0.06);
       }
       const warpFactor = warpProgressRef.current;
+
+      // Post-glow spatial expansion — ease stems outward 18% after warp
+      const expandTarget = hasReachedNucleusRef.current ? 1.18 : 1;
+      postGlowExpand = lerp(postGlowExpand, expandTarget, 0.025);
 
       ctx.clearRect(0, 0, width, height);
 
@@ -671,7 +676,8 @@ export default function HeroNeuron() {
         const positions: { x: number; y: number }[] = [];
 
         // Scale stems relative to viewport so they space evenly
-        const stemScale = Math.min(width, height) / 600;
+        // postGlowExpand eases to 1.18 after warp, pushing stems into negative space
+        const stemScale = (Math.min(width, height) / 600) * postGlowExpand;
 
         SYNAPTIC_STEMS.forEach((stem, idx) => {
           const wobble = Math.sin(stemTime * 1.5 + stem.angle * 3) * 3;
@@ -768,6 +774,7 @@ export default function HeroNeuron() {
       />
 
       {/* Synaptic Fact Overlay — glassmorphic tooltip at node position */}
+      {/* z-40 keeps tooltip above the hero-text z-10 layer */}
       <FactOverlay
         activeStemId={hoveredStemId}
         visible={hasReachedNucleus}

@@ -50,11 +50,11 @@ export default function FactOverlay({
       {isActive && pos && fact && (
         <motion.div
           key={activeStemId}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 12 }}
-          transition={{ type: "spring", stiffness: 260, damping: 22, mass: 0.8 }}
-          className="absolute z-30 pointer-events-auto"
+          initial={{ opacity: 0, y: 22, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 14, scale: 0.96 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          className="absolute z-40 pointer-events-auto"
           style={{
             left: pos.x,
             top: pos.y,

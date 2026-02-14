@@ -152,8 +152,8 @@ export default function HomePage() {
           <HeroNeuron />
         </div>
 
-        {/* Hero Text Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {/* Hero Text Overlay — z-10 ensures buttons stay above canvas layer */}
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
           <div className="text-center space-y-6 px-4 pointer-events-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-400 text-xs font-mono animate-fade-in">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
