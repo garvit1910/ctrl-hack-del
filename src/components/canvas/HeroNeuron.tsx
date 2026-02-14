@@ -616,8 +616,8 @@ export default function HeroNeuron() {
       }
       const warpFactor = warpProgressRef.current;
 
-      // Post-glow spatial expansion — ease stems outward 18% after warp
-      const expandTarget = hasReachedNucleusRef.current ? 1.18 : 1;
+      // Post-glow spatial expansion — ease stems outward 25% after warp
+      const expandTarget = hasReachedNucleusRef.current ? 1.25 : 1;
       postGlowExpand = lerp(postGlowExpand, expandTarget, 0.025);
 
       ctx.clearRect(0, 0, width, height);
