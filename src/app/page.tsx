@@ -25,17 +25,11 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 
 // Dynamic import to avoid SSR issues with canvas
 const HeroNeuron = dynamic(
@@ -110,63 +104,46 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Learn Sheet */}
-      <Sheet open={learnOpen} onOpenChange={setLearnOpen}>
-        <SheetContent side="right" className="w-[420px] sm:w-[480px] bg-zinc-950 border-zinc-800 overflow-y-auto">
-          <SheetHeader className="mb-6">
-            <SheetTitle className="text-cyan-300 flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              Understanding Parkinson&apos;s
-            </SheetTitle>
-            <SheetDescription>
-              Key facts about early detection and motor biomarkers.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="space-y-6 text-sm text-zinc-400 leading-relaxed">
-            <div>
-              <h4 className="text-zinc-200 font-semibold mb-1">What is Parkinson&apos;s Disease?</h4>
-              <p>
-                A progressive neurodegenerative disorder caused by the loss of
-                dopamine-producing neurons in the substantia nigra. It affects
-                over 10 million people worldwide.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-zinc-200 font-semibold mb-1">Why Spiral &amp; Wave Tests?</h4>
-              <p>
-                The Archimedes spiral and sinusoidal wave tests capture fine
-                motor control anomalies — tremor, bradykinesia, and
-                micrographia — that are among the earliest detectable signs of PD.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-zinc-200 font-semibold mb-1">How Detection Works</h4>
-              <p>
-                We capture (x, y, t) coordinates at high resolution while you
-                draw. The analysis engine computes radial deviation, speed
-                variance, and tremor frequency to produce a screening score.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-zinc-200 font-semibold mb-1">Accuracy &amp; Limitations</h4>
-              <p>
-                ML models trained on clinically-validated datasets achieve 92%+
-                sensitivity, but this tool is for educational screening only
-                and is <em>not</em> a medical diagnostic device.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-800">
-              <Link href="/detector">
-                <Button size="sm" className="w-full gap-2" onClick={() => setLearnOpen(false)}>
-                  <Activity className="w-4 h-4" />
-                  Try the Detector
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
-            </div>
+      {/* Learn Popover Card */}
+      {learnOpen && (
+        <>
+          <div className="fixed inset-0 z-[55]" onClick={() => setLearnOpen(false)} />
+          <div className="fixed top-16 right-4 z-[60] w-80 animate-fade-in">
+            <Card className="bg-zinc-950/95 backdrop-blur-xl border-zinc-800 shadow-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-cyan-300 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Parkinson&apos;s Screening
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Motor biomarker analysis for early detection
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-xs text-zinc-400 space-y-2 pt-0">
+                <p>
+                  Archimedes spiral and wave tests capture motor control
+                  anomalies — tremor, bradykinesia, and micrographia — among
+                  the earliest detectable signs of PD.
+                </p>
+                <p>
+                  We record (x,&nbsp;y,&nbsp;t) coordinates at high resolution
+                  and compute radial deviation, speed variance, and tremor
+                  frequency to produce a screening score.
+                </p>
+                <p className="text-zinc-600 text-[10px]">
+                  Not a medical device. For screening &amp; educational purposes only.
+                </p>
+                <Link href="/detector">
+                  <Button size="sm" className="w-full gap-1.5 mt-2" onClick={() => setLearnOpen(false)}>
+                    <Activity className="w-3.5 h-3.5" />
+                    Try the Detector
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
-        </SheetContent>
-      </Sheet>
+        </>
+      )}
 
       {/* Hero Section */}
       <section className="relative h-screen w-full overflow-hidden">
