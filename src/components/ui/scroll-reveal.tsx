@@ -5,6 +5,8 @@
  * to fade-in and scale-up children when they enter the viewport,
  * and fade-out when they leave.
  *
+ * Supports directional variants: "up" (default) or "left".
+ *
  * @module components/ui/scroll-reveal
  */
 
@@ -20,11 +22,18 @@ interface ScrollRevealProps {
   delay?: number;
   /** Viewport margin for early trigger (default: "-60px") */
   margin?: string;
+  /** Direction the element enters from (default: "up") */
+  direction?: "up" | "left";
 }
 
-const revealVariants: Variants = {
+const upVariants: Variants = {
   hidden: { opacity: 0, y: 32, scale: 0.95 },
   visible: { opacity: 1, y: 0, scale: 1 },
+};
+
+const leftVariants: Variants = {
+  hidden: { opacity: 0, x: -48 },
+  visible: { opacity: 1, x: 0 },
 };
 
 export default function ScrollReveal({
@@ -32,10 +41,11 @@ export default function ScrollReveal({
   className,
   delay = 0,
   margin = "-60px",
+  direction = "up",
 }: ScrollRevealProps) {
   return (
     <motion.div
-      variants={revealVariants}
+      variants={direction === "left" ? leftVariants : upVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: false, margin }}
