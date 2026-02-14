@@ -238,10 +238,14 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
       { x: 0, y: 1, z: 0 },
       { x: 0.5, y: 0.85, z: 0 },
       { x: -0.5, y: 0.85, z: 0 },
+      { x: 0.85, y: 0.1, z: 0.5 },
+      { x: -0.85, y: 0.1, z: -0.5 },
+      { x: 0.3, y: -0.5, z: -0.8 },
+      { x: -0.3, y: -0.5, z: 0.8 },
     ];
 
     return directions.map((d) =>
-      buildNeuronTree({ x: 0, y: 0, z: 0 }, d, 170, 0, 7)
+      buildNeuronTree({ x: 0, y: 0, z: 0 }, d, 240, 0, 6)
     );
   }, []);
 
@@ -249,14 +253,14 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
   const particles = useMemo(() => {
     const parts: Particle[] = [];
     function collect(node: BranchNode) {
-      if (Math.random() < 0.3) {
-        const spd = 0.002 + Math.random() * 0.004;
+      if (Math.random() < 0.6) {
+        const spd = 0.003 + Math.random() * 0.005;
         parts.push({
           branch: node,
           t: Math.random(),
           speed: spd,
           baseSpeed: spd,
-          size: 1 + Math.random() * 2,
+          size: 1.5 + Math.random() * 2.5,
         });
       }
       node.children.forEach(collect);
@@ -407,25 +411,25 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
       const p1 = project3D(s, focalLength, cx, cy);
       const p2 = project3D(e, focalLength, cx, cy);
 
-      // Pulse brightness
+      // Pulse brightness — intensified for vibrant neon
       const pulse =
-        0.6 + 0.4 * Math.sin(time * 2 + node.pulsePhase);
+        0.7 + 0.3 * Math.sin(time * 2.5 + node.pulsePhase);
 
       // Depth-based color: cyan core → blue tips
-      const depthRatio = node.depth / 7;
+      const depthRatio = node.depth / 6;
 
       // During warp, branches get a speed-line stretch effect
       const warpStretch = 1 + warpFactor * 3 * (1 - depthRatio);
 
-      const r = Math.round(lerp(0, 80, depthRatio));
-      const g = Math.round(lerp(220, 140, depthRatio));
+      const r = Math.round(lerp(20, 100, depthRatio));
+      const g = Math.round(lerp(255, 180, depthRatio));
       const b = Math.round(lerp(255, 255, depthRatio));
 
-      // Warp brightens; fog and near-clip modulate alpha
-      const warpBright = 1 + warpFactor * 2;
-      const lineWidth = Math.min(12, Math.max(0.5, (1 - depthRatio) * 3 * p1.scale * warpStretch));
+      // Warp brightens; fog and near-clip modulate alpha — boosted base intensity
+      const warpBright = 1 + warpFactor * 2.5;
+      const lineWidth = Math.min(14, Math.max(0.8, (1 - depthRatio) * 4 * p1.scale * warpStretch));
       const alpha = clamp(
-        globalAlpha * pulse * (1 - depthRatio * 0.4) * p1.scale * warpBright * nearFade * fogFactor,
+        globalAlpha * pulse * (1 - depthRatio * 0.25) * p1.scale * warpBright * nearFade * fogFactor * 1.4,
         0,
         1
       );
@@ -501,14 +505,14 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
       nucleusPos = { ...nucleusPos, z: viewZ };
 
       const projected = project3D(nucleusPos, focalLength, cx, cy);
-      const baseRadius = 12 + zoomLevel * 30;
-      const pulse = 1 + 0.15 * Math.sin(time * 3);
+      const baseRadius = 18 + zoomLevel * 40;
+      const pulse = 1 + 0.2 * Math.sin(time * 3);
       // During warp, nucleus expands dramatically
       const warpExpand = 1 + warpFactor * 8;
       const radius = baseRadius * projected.scale * pulse * warpExpand;
 
-      // Outer glow — near-clip fades it as camera passes through
-      const glowAlpha = (0.3 + warpFactor * 0.5) * pulse * nearFade;
+      // Outer glow — near-clip fades it as camera passes through (intensified)
+      const glowAlpha = (0.5 + warpFactor * 0.5) * pulse * nearFade;
       const glowGrad = ctx.createRadialGradient(
         projected.x,
         projected.y,
@@ -517,8 +521,8 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
         projected.y,
         radius * (2.5 + warpFactor * 4)
       );
-      glowGrad.addColorStop(0, `rgba(0, 220, 255, ${clamp(glowAlpha, 0, 1)})`);
-      glowGrad.addColorStop(0.5, `rgba(0, 180, 255, ${clamp(glowAlpha * 0.4, 0, 1)})`);
+      glowGrad.addColorStop(0, `rgba(0, 240, 255, ${clamp(glowAlpha, 0, 1)})`);
+      glowGrad.addColorStop(0.5, `rgba(0, 200, 255, ${clamp(glowAlpha * 0.5, 0, 1)})`);
       glowGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
 
       ctx.beginPath();
@@ -542,9 +546,9 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
         projected.y,
         radius
       );
-      coreGrad.addColorStop(0, `rgba(200, 255, 255, ${0.95 * coreAlpha})`);
-      coreGrad.addColorStop(0.4, `rgba(0, 220, 255, ${0.8 * coreAlpha})`);
-      coreGrad.addColorStop(1, `rgba(0, 100, 200, ${0.2 * coreAlpha})`);
+      coreGrad.addColorStop(0, `rgba(220, 255, 255, ${0.98 * coreAlpha})`);
+      coreGrad.addColorStop(0.4, `rgba(0, 240, 255, ${0.9 * coreAlpha})`);
+      coreGrad.addColorStop(1, `rgba(0, 140, 220, ${0.3 * coreAlpha})`);
 
       ctx.beginPath();
       ctx.arc(projected.x, projected.y, radius, 0, Math.PI * 2);
@@ -596,7 +600,7 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
 
         rPos = { ...rPos, z: viewZ };
         const proj = project3D(rPos, focalLength, cx, cy);
-        const alpha = (0.4 + 0.6 * Math.sin(time * 5 + p.branch.pulsePhase)) * nearFade * fogFactor;
+        const alpha = (0.55 + 0.45 * Math.sin(time * 5 + p.branch.pulsePhase)) * nearFade * fogFactor;
 
         // During warp, particles get trail effect
         const trailLen = warpFactor * 6;
@@ -615,10 +619,10 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
           ctx.stroke();
         }
 
-        // Square pixel particles with depth-fog
-        const pxSize = Math.min(8, p.size * proj.scale * (1 + warpFactor));
+        // Square pixel particles with depth-fog — brighter neon
+        const pxSize = Math.min(10, p.size * proj.scale * (1 + warpFactor) * 1.3);
         ctx.fillStyle = `rgba(0, 255, 220, ${clamp(
-          alpha * proj.scale * (1 + warpFactor * 2),
+          alpha * proj.scale * (1 + warpFactor * 2) * 1.5,
           0,
           1
         )})`;
@@ -667,7 +671,7 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
 
     let currentZoom = 0;
     let postGlowExpand = 1;   // eased expansion after glow
-    let cameraZPos = -420;    // first-person camera Z position (closer = tree fills viewport)
+    let cameraZPos = -320;    // first-person camera Z position (closer = tree fills viewport)
     let parallaxX = 0;        // smoothed mouse parallax yaw
     let parallaxY = 0;        // smoothed mouse parallax pitch
     let autoTriggered = false; // one-shot proximity trigger after warp
@@ -713,8 +717,8 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
 
       const cx = width / 2;
       const cy = height / 2;
-      const focalLength = 400;
-      const maxFogDist = 900;
+      const focalLength = 350;
+      const maxFogDist = 1100;
 
       // ── First-Person Camera Z ────────────────────────────
       // Camera dives from z=-500 toward origin, blasts through during warp,
@@ -725,7 +729,7 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
       } else if (hasReachedNucleusRef.current) {
         targetCamZ = 0;     // settle at the nucleus center
       } else {
-        targetCamZ = -420 + currentZoom * 494; // zoom 0→0.85 maps -420→0
+        targetCamZ = -320 + currentZoom * 376; // zoom 0→0.85 maps -320→0
       }
       const camLerp = isWarpingRef.current ? 0.035 : 0.06;
       cameraZPos = lerp(cameraZPos, targetCamZ, camLerp);
@@ -755,9 +759,9 @@ export default function HeroNeuron({ onCinematicChange }: HeroNeuronProps) {
       // Render warp-speed lines behind everything
       renderWarpLines(cx, cy, warpFactor, time);
 
-      // Render neuron branches (with near-clipping + depth-fog)
+      // Render neuron branches (with near-clipping + depth-fog) — boosted globalAlpha
       trees.forEach((tree) => {
-        renderBranch(tree, time, focalLength, cx, cy, rotY, rotXAngle, 0.9, cameraZPos, warpFactor, maxFogDist);
+        renderBranch(tree, time, focalLength, cx, cy, rotY, rotXAngle, 1.0, cameraZPos, warpFactor, maxFogDist);
       });
 
       // Render nucleus (near-clip fades as camera passes through)
