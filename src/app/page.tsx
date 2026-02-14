@@ -1,16 +1,16 @@
 /**
  * NeuroSketch — Landing Page
  *
- * Hero section featuring the Living Neuron 3D canvas engine with
- * scroll-to-zoom interaction. Includes navigation to the detector
- * dashboard and feature highlights.
+ * Pixelated Cyber-Science theme with retro medical-monitor aesthetic.
+ * Scanline overlay, pixel-grid pattern, stepped borders, neon icon
+ * glow, and scroll-triggered Framer Motion entrance animations.
  *
  * @module app/page
  */
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -21,6 +21,8 @@ import {
   Zap,
   Shield,
   BookOpen,
+  Binary,
+  BrainCircuit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +32,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import ScrollReveal from "@/components/ui/scroll-reveal";
 
 // Dynamic import to avoid SSR issues with canvas
 const HeroNeuron = dynamic(
@@ -71,16 +74,29 @@ const FEATURES = [
 export default function HomePage() {
   const [learnOpen, setLearnOpen] = useState(false);
 
+  // Environment cleanup — clear stale localhost storage on mount
+  useEffect(() => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch {
+      // storage access may fail in certain contexts
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-black text-zinc-100">
+    <div className="min-h-screen bg-black text-zinc-100 pixel-grid">
+      {/* Scanline CRT overlay */}
+      <div className="scanline-overlay" />
+
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-900/50 bg-black/60 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-cyan-500/10 bg-black/70 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <div className="p-1.5 rounded-lg bg-cyan-500/10">
-              <Brain className="w-5 h-5 text-cyan-400" />
+            <div className="p-1.5 pixel-border border-cyan-500/20 bg-cyan-500/10">
+              <Brain className="w-5 h-5 text-cyan-400 neon-icon" />
             </div>
-            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="font-bold text-lg tracking-tight font-mono bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
               NeuroSketch
             </span>
           </Link>
@@ -88,15 +104,15 @@ export default function HomePage() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 pixel-border border-transparent hover:border-cyan-500/20 rounded-none"
               onClick={() => setLearnOpen(true)}
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-4 h-4 neon-icon" />
               Learn
             </Button>
             <Link href="/detector">
-              <Button size="sm" className="gap-1.5">
-                <Activity className="w-4 h-4" />
+              <Button size="sm" className="gap-1.5 pixel-border rounded-none border-cyan-500/30">
+                <Activity className="w-4 h-4 neon-icon" />
                 Detector
               </Button>
             </Link>
@@ -109,10 +125,10 @@ export default function HomePage() {
         <>
           <div className="fixed inset-0 z-[55]" onClick={() => setLearnOpen(false)} />
           <div className="fixed top-16 right-4 z-[60] w-80 animate-fade-in">
-            <Card className="bg-zinc-950/95 backdrop-blur-xl border-zinc-800 shadow-2xl">
+            <Card className="bg-zinc-950/95 backdrop-blur-xl border-cyan-500/15 shadow-2xl pixel-border">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-cyan-300 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4" />
+                <CardTitle className="text-sm text-cyan-300 flex items-center gap-2 font-mono">
+                  <BrainCircuit className="w-4 h-4 neon-icon" />
                   Parkinson&apos;s Screening
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -130,12 +146,12 @@ export default function HomePage() {
                   and compute radial deviation, speed variance, and tremor
                   frequency to produce a screening score.
                 </p>
-                <p className="text-zinc-600 text-[10px]">
+                <p className="text-zinc-600 text-[10px] font-mono">
                   Not a medical device. For screening &amp; educational purposes only.
                 </p>
                 <Link href="/detector">
-                  <Button size="sm" className="w-full gap-1.5 mt-2" onClick={() => setLearnOpen(false)}>
-                    <Activity className="w-3.5 h-3.5" />
+                  <Button size="sm" className="w-full gap-1.5 mt-2 pixel-border rounded-none border-cyan-500/30" onClick={() => setLearnOpen(false)}>
+                    <Activity className="w-3.5 h-3.5 neon-icon" />
                     Try the Detector
                   </Button>
                 </Link>
@@ -155,12 +171,12 @@ export default function HomePage() {
         {/* Hero Text Overlay — z-10 ensures buttons stay above canvas layer */}
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
           <div className="text-center space-y-6 px-4 pointer-events-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-400 text-xs font-mono animate-fade-in">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 pixel-border border-cyan-500/20 bg-cyan-500/5 text-cyan-400 text-xs font-mono animate-fade-in">
+              <Binary className="w-3.5 h-3.5 neon-icon" />
               Early Detection Research Tool
             </div>
 
-            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight animate-slide-up">
+            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight animate-slide-up font-mono">
               <span className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
                 Neuro
               </span>
@@ -176,8 +192,8 @@ export default function HomePage() {
 
             <div className="flex items-center justify-center gap-4 animate-slide-up">
               <Link href="/detector">
-                <Button size="lg" className="gap-2 text-base">
-                  <Activity className="w-5 h-5" />
+                <Button size="lg" className="gap-2 text-base pixel-border rounded-none border-cyan-500/30">
+                  <Activity className="w-5 h-5 neon-icon" />
                   Begin Screening
                 </Button>
               </Link>
@@ -185,9 +201,9 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="gap-2 text-base"
+                  className="gap-2 text-base pixel-border rounded-none border-cyan-500/25"
                 >
-                  <BookOpen className="w-5 h-5" />
+                  <BookOpen className="w-5 h-5 neon-icon" />
                   Learn More
                 </Button>
               </Link>
@@ -200,71 +216,74 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-10 py-24 bg-black">
+      <section className="relative z-10 py-24 bg-black pixel-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-              Clinical-Grade Screening,{" "}
-              <span className="text-cyan-400">Instantly</span>
-            </h2>
-            <p className="text-zinc-500 max-w-2xl mx-auto">
-              NeuroSketch brings validated neurological screening methods to
-              your browser with zero data collection and real-time results.
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4 font-mono">
+                Clinical-Grade Screening,{" "}
+                <span className="text-cyan-400">Instantly</span>
+              </h2>
+              <p className="text-zinc-500 max-w-2xl mx-auto">
+                NeuroSketch brings validated neurological screening methods to
+                your browser with zero data collection and real-time results.
+              </p>
+            </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURES.map((feature) => (
-              <Card
-                key={feature.title}
-                className="group hover:border-cyan-500/20 transition-colors duration-300"
-              >
-                <CardHeader>
-                  <div className="p-3 rounded-xl bg-cyan-500/10 w-fit mb-3 group-hover:bg-cyan-500/15 transition-colors">
-                    <feature.icon className="w-6 h-6 text-cyan-400" />
-                  </div>
-                  <CardTitle className="text-xl">
-                    {feature.title}
-                  </CardTitle>
-                  <CardDescription className="leading-relaxed">
-                    {feature.description}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+            {FEATURES.map((feature, idx) => (
+              <ScrollReveal key={feature.title} delay={idx * 0.1}>
+                <Card className="group hover:border-cyan-500/20 transition-colors duration-300 pixel-border border-zinc-800/50 bg-zinc-950/60">
+                  <CardHeader>
+                    <div className="p-3 pixel-border border-cyan-500/15 bg-cyan-500/10 w-fit mb-3 group-hover:bg-cyan-500/15 transition-colors">
+                      <feature.icon className="w-6 h-6 text-cyan-400 neon-icon" />
+                    </div>
+                    <CardTitle className="text-xl font-mono">
+                      {feature.title}
+                    </CardTitle>
+                    <CardDescription className="leading-relaxed">
+                      {feature.description}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-24 bg-gradient-to-t from-zinc-950 to-black border-t border-zinc-900/50">
-        <div className="max-w-3xl mx-auto px-4 text-center space-y-8">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            Ready to test?
-          </h2>
-          <p className="text-zinc-400 text-lg leading-relaxed">
-            The spiral test takes less than 30 seconds. All processing
-            happens locally — your data never leaves your device.
-          </p>
-          <Link href="/detector">
-            <Button size="lg" className="gap-2 text-base">
-              Open Detector
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </Link>
-        </div>
+      <section className="relative z-10 py-24 bg-gradient-to-t from-zinc-950 to-black border-t border-cyan-500/10">
+        <ScrollReveal>
+          <div className="max-w-3xl mx-auto px-4 text-center space-y-8">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight font-mono">
+              Ready to test?
+            </h2>
+            <p className="text-zinc-400 text-lg leading-relaxed">
+              The spiral test takes less than 30 seconds. All processing
+              happens locally — your data never leaves your device.
+            </p>
+            <Link href="/detector">
+              <Button size="lg" className="gap-2 text-base pixel-border rounded-none border-cyan-500/30">
+                Open Detector
+                <ArrowRight className="w-5 h-5 neon-icon" />
+              </Button>
+            </Link>
+          </div>
+        </ScrollReveal>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-900 py-8">
+      <footer className="border-t border-cyan-500/10 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Brain className="w-4 h-4 text-cyan-500/50" />
-            <span className="text-sm text-zinc-600">
+            <Brain className="w-4 h-4 text-cyan-500/50 neon-icon" />
+            <span className="text-sm text-zinc-600 font-mono">
               NeuroSketch — Educational Research Tool
             </span>
           </div>
-          <p className="text-xs text-zinc-700">
+          <p className="text-xs text-zinc-700 font-mono">
             Not a medical device. For screening and educational purposes
             only.
           </p>
