@@ -56,15 +56,7 @@ const bootLine = {
 /* ─── Research Papers ──────────────────────────────────────────────────── */
 
 const PAPERS = [
-  {
-    authors: "Pullman SL",
-    title:
-      "Spiral analysis: a new technique for measuring tremor with a digitizing tablet.",
-    journal: "Mov Disord. 1998",
-    url: "https://pubmed.ncbi.nlm.nih.gov/9629849/",
-    summary:
-      "Introduced spiral analysis as a quantitative, objective measure of tremor severity using digitized Archimedes spirals. Demonstrated that spiral metrics correlate strongly with clinical tremor rating scales.",
-  },
+
   {
     authors: "Zham P et al.",
     title:

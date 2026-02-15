@@ -606,12 +606,7 @@ export default function DetectorPage() {
               <div className="space-y-3">
                 <h4 className="text-zinc-200 font-semibold text-sm">Research Papers</h4>
                 <ul className="space-y-2 text-zinc-400 text-xs">
-                  <li className="flex items-start gap-2">
-                    <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0 text-cyan-500" />
-                    <a href="https://pubmed.ncbi.nlm.nih.gov/9629849/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
-                      Pullman SL. <em>Spiral analysis: a new technique for measuring tremor with a digitizing tablet.</em> Mov Disord. 1998.
-                    </a>
-                  </li>
+
                   <li className="flex items-start gap-2">
                     <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0 text-cyan-500" />
                     <a href="https://pubmed.ncbi.nlm.nih.gov/25904359/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
