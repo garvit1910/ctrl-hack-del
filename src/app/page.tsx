@@ -24,6 +24,7 @@ import {
   BookOpen,
   Binary,
   BrainCircuit,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -135,6 +136,16 @@ export default function HomePage() {
               <Button size="sm" className="gap-1.5 pixel-border rounded-none border-cyan-500/30">
                 <Activity className="w-4 h-4 neon-icon" />
                 Detector
+              </Button>
+            </Link>
+            <Link href="/citations">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 pixel-border border-transparent hover:border-cyan-500/20 rounded-none"
+              >
+                <FileText className="w-4 h-4 neon-icon" />
+                Citations
               </Button>
             </Link>
           </div>
@@ -272,8 +283,8 @@ export default function HomePage() {
       <section className="relative z-10 py-24 bg-black pixel-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4 font-mono">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2 font-mono">
                 Clinical-Grade Screening,{" "}
                 <span className="text-cyan-400">Instantly</span>
               </h2>
@@ -306,6 +317,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* What is NeuroSketch? */}
+      <section className="relative z-10 py-20 bg-gradient-to-b from-black to-zinc-950 border-t border-cyan-500/10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal>
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight font-mono">
+                What is{" "}
+                <span className="bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                  NeuroSketch
+                </span>
+                ?
+              </h2>
+              <p className="text-zinc-400 text-lg leading-relaxed max-w-2xl mx-auto">
+                NeuroSketch is a browser-based neurological screening platform
+                that uses validated spiral and wave drawing tests to detect
+                early motor function anomalies associated with Parkinson&apos;s
+                disease.
+              </p>
+              <p className="text-zinc-500 leading-relaxed max-w-2xl mx-auto">
+                All analysis runs entirely in your browser — zero data
+                collection, zero uploads, zero tracking. Powered by
+                real-time coordinate capture and machine learning inference,
+                NeuroSketch delivers clinical-grade screening without
+                compromising your privacy.
+              </p>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative z-10 py-24 bg-gradient-to-t from-zinc-950 to-black border-t border-cyan-500/10">
         <ScrollReveal>
@@ -314,12 +355,12 @@ export default function HomePage() {
               Ready to test?
             </h2>
             <p className="text-zinc-400 text-lg leading-relaxed">
-              The spiral test takes less than 30 seconds. All processing
+              The test takes less than 30 seconds. All processing
               happens locally — your data never leaves your device.
             </p>
             <Link href="/detector">
               <Button size="lg" className="gap-2 text-base pixel-border rounded-none border-cyan-500/30">
-                Open Detector
+                Start The Test
                 <ArrowRight className="w-5 h-5 neon-icon" />
               </Button>
             </Link>
