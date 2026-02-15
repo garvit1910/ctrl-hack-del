@@ -613,12 +613,6 @@ export default function DetectorPage() {
                       Zham P et al. <em>Efficacy of guided and unguided spiral drawing in assessing motor symptoms of Parkinson&apos;s disease.</em> IEEE EMBC. 2017.
                     </a>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0 text-cyan-500" />
-                    <a href="https://pubmed.ncbi.nlm.nih.gov/30131219/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
-                      Pereira CR et al. <em>A new computer vision–based approach to aid the diagnosis of Parkinson&apos;s disease.</em> Comp Methods &amp; Programs in Biomed. 2016.
-                    </a>
-                  </li>
                 </ul>
               </div>
 
