@@ -241,7 +241,7 @@ export default function HomePage() {
               Archimedes spiral test — powered by real-time motor analysis.
             </p>
 
-            <div className="flex items-center justify-center gap-4 animate-slide-up mt-4">
+            <div className="flex items-center justify-center gap-4 animate-slide-up mt-14">
               <Link href="/detector">
                 <Button size="lg" className="gap-2 text-base pixel-border rounded-none border-cyan-500/30">
                   <Activity className="w-5 h-5 neon-icon" />
@@ -284,7 +284,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
             <div className="text-center mb-8">
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1 font-mono">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-0 font-mono">
                 Clinical-Grade Screening,{" "}
                 <span className="text-cyan-400">Instantly</span>
               </h2>
