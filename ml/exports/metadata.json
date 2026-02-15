@@ -1,0 +1,46 @@
+{
+  "project": "TremorTrace",
+  "version": "1.1.0",
+  "exported_at": "2026-02-14T11:12:24.375816",
+  "trained_on": "local",
+  "dataset": {
+    "original_images": 204,
+    "augmented_images": 720,
+    "total_training": 924,
+    "test_images": 60
+  },
+  "models": {
+    "spiral_cnn": {
+      "file": "spiral_final.keras",
+      "accuracy": 0.7,
+      "auc": 0.88,
+      "precision": 1.0,
+      "recall": 0.4,
+      "input_shape": [224, 224, 3],
+      "architecture": "MobileNetV2 + Dense(128) + Dense(64) + sigmoid"
+    },
+    "wave_cnn": {
+      "file": "wave_final.keras",
+      "accuracy": 0.8,
+      "auc": 0.8444,
+      "precision": 0.8,
+      "recall": 0.8,
+      "input_shape": [224, 224, 3],
+      "architecture": "MobileNetV2 + Dense(128) + Dense(64) + sigmoid"
+    }
+  },
+  "ensemble": {
+    "weights": {
+      "spiral_cnn": 0.4,
+      "wave_cnn": 0.6
+    },
+    "output": "probability_percentage_0_to_100",
+    "risk_tiers": ["Low Risk (0-25%)", "Mild Risk (25-45%)", "Moderate Risk (45-65%)", "Elevated Risk (65-85%)", "High Risk (85-100%)"]
+  },
+  "deployment": {
+    "entry_point": "input_handler.process_input()",
+    "required_files": ["input_handler.py", "ensemble.py", "gradcam.py", "spiral_final.keras", "wave_final.keras"],
+    "dependencies": ["tensorflow>=2.10", "numpy", "Pillow", "opencv-python"],
+    "inference_time_cpu": "~2s per prediction"
+  }
+}

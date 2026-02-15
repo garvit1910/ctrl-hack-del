@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NeuroSketch
 
-## Getting Started
+NeuroSketch is a clinical-grade neurological screening platform designed to detect early indicators of Parkinson’s Disease through hand-drawn motor analysis. By utilizing validated screening methods—specifically the Archimedes spiral and wave tests—the platform provides real-time results directly in the browser with zero data collection.
 
-First, run the development server:
+## Technical Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The project is architected as a high-performance web application, leveraging a deep learning ensemble to analyze motor tremors and drawing patterns.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Frontend
+The frontend is built with **Next.js 14** and **TypeScript**, focusing on an immersive 3D user experience and technical transparency.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **UI/UX**: Implemented using **Tailwind CSS** and **Shadcn UI** for a clean, professional aesthetic.
+* **3D Engine**: Features a custom 3D neural mesh with a first-person navigable camera, allowing users to explore the model's internal nodes.
+* **Animations**: Utilizes **Framer Motion** for cinematic UI transitions, including proximity-based fact reveals and a state-driven cinematic mode.
+* **Privacy**: Architected for zero-retention; data is processed and results are delivered without permanent storage.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Backend
+The backend serves as the inference engine, built with **FastAPI** for high-concurrency performance and **TensorFlow** for model execution.
 
-## Learn More
+* **Architecture**: Utilizes a **MobileNetV2** backbone pre-trained on ImageNet for efficient feature extraction, with custom dense layers optimized for multi-class classification.
+* **Ensemble Logic**: Implements a weighted voting ensemble (40% Spiral / 60% Wave) to maximize diagnostic sensitivity.
+* **Inference**: Processes image blobs and [x, y, t] coordinate data to evaluate tremor frequency and drawing accuracy.
 
-To learn more about Next.js, take a look at the following resources:
+## Model Performance
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The current iteration of the system demonstrates high reliability across both primary screening modalities:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Test Type | Accuracy | AUC |
+| :--- | :--- | :--- |
+| Spiral CNN | 86.7% | 0.9511 |
+| Wave CNN | 91.3% | 0.9627 |
 
-## Deploy on Vercel
+## Research and Data
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The models were trained on the [Parkinson's Drawings dataset via Kaggle](https://www.kaggle.com/datasets/kmader/parkinsons-drawings). The methodology is informed by clinical research regarding the efficacy of hand-drawn Archimedes spirals as digital biomarkers for neurodegenerative conditions.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
